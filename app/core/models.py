@@ -12,11 +12,25 @@ class UserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
         """create, save abd return a new user"""
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=self.normalize_email(email), **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
 
         return user
+
+    @classmethod
+    def normalize_email(cls, email):
+        """
+        Override the default class method. Normalize the email address by lowercasing all part of it.
+        """
+        email = email or ""
+        try:
+            email_name, domain_part = email.strip().rsplit("@", 1)
+        except ValueError:
+            pass
+        else:
+            email = email_name.lower() + "@" + domain_part.lower()
+        return email
 
 
 class User(AbstractBaseUser, PermissionsMixin):
