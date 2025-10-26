@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.test import Client
 from core.models import User, UserManager
 
+
 class AdminSiteTests(TestCase):
     """Tests for Django admin."""
 
@@ -14,20 +15,23 @@ class AdminSiteTests(TestCase):
         """Create user and client"""
         self.client = Client()
         self.admin_user: User = get_user_model().objects.create_superuser(
-            email="admin@example.com",
-            password = "test123"
+            email="admin@example.com", password="test123"
         )
         self.client.force_login(self.admin_user)
         self.user = get_user_model().objects.create_user(
-            email='user@example.com',
-            password='testapss1233',
-            name='Test user'
+            email="user@example.com", password="testapss1233", name="Test user"
         )
 
     def test_users_list(self):
         """Test that users alre listed on page."""
-        url = reverse('admin:core_user_changelist')
+        url = reverse("admin:core_user_changelist")
         response = self.client.get(url)
 
         self.assertContains(response, self.user.name)
         self.assertContains(response, self.user.email)
+
+    def test_edit_user_page(self):
+        url = reverse("admin:core_user_change", args=[self.user.id])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
